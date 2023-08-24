@@ -4,7 +4,7 @@
 
 #### Telegram inline text images generation, on the fly
 
-**[About](#about)** - [License](#license)
+**[About](#about) - [Usage](#usage)** - [License](#license)
 
 </div>
 
