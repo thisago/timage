@@ -4,3 +4,4 @@
 
 - Init
 - Added inline square image generation :D
+- Fixed text size and position

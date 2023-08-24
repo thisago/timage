@@ -57,9 +57,9 @@ proc genImage(text, user: string) =
 
   let tf = readTypeface dataDir / font.filename
 
-  image.fillText typeset(@[newSpan(user & "\l", tf.newFont(14, randomHsl(50))),], vec2(190, 190)), translate(vec2(5, 5))
+  image.fillText typeset(@[newSpan(user & "\l", tf.newFont(10, randomHsl(50))),], vec2(190, 190)), translate(vec2(5, 5))
   image.fillText typeset(@[newSpan(text & "\l", tf.newFont(12, color(1, 1, 1))),], vec2(190, 190), vAlign = MiddleAlign, hAlign = CenterAlign), translate(vec2(5, 5))
-  image.fillText typeset(@[newSpan(nowFormatted(), tf.newFont(13, color rgba(255, 255, 255, 60))),], vec2(190, 190), vAlign = BottomAlign), translate(vec2(5, 5))
+  image.fillText typeset(@[newSpan(nowFormatted(), tf.newFont(10, color rgba(255, 255, 255, 60))),], vec2(190, 190), vAlign = BottomAlign, hAlign = RightAlign), translate(vec2(5, 5))
   image.writeFile fileName
 
 proc inlineHandler(b: Telebot, u: InlineQuery): Future[bool] {.async, gcsafe.} =
