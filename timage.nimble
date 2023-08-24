@@ -7,6 +7,7 @@ license       = "GPL-3.0-only"
 srcDir        = "src"
 bin           = @["timage"]
 
+binDir = "build"
 
 # Dependencies
 
@@ -14,16 +15,19 @@ requires "nim >= 1.6.4"
 
 requires "telebot"
 requires "pixie"
+requires "dataUrl"
 
 
 from std/os import `/`
 
-const
-  dataDir = "data"
-  robotoFont = "roboto-regular.ttf"
+import src/timage/config
 
 task setupFiles, "Setup":
   if not dirExists dataDir:
     mkDir dataDir
-  if not fileExists dataDir / robotoFont:
-    exec "wget https://github.com/treeform/pixie/raw/master/examples/data/Roboto-Regular_1.ttf -O " & dataDir / robotoFont
+  for font in fonts:
+    if not fileExists dataDir / font.filename:
+      exec "wget " & font.url & " -O " & dataDir / font.filename
+
+task buildRelease, "release":
+  exec "nimble -d:danger --opt:speed build"
