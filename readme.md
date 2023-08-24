@@ -2,7 +2,7 @@
 
 # Timage
 
-#### Text in images in Telegram, on the fly.
+#### Telegram inline text images generation, on the fly
 
 **[About](#about)** - [License](#license)
 
