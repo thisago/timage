@@ -2,7 +2,7 @@
 
 # Timage
 
-#### Telegram inline text images generation, on the fly
+#### Multi-frame text image generation in Telegram
 
 **[About](#about) - [Usage](#usage)** - [License](#license)
 
@@ -10,8 +10,8 @@
 
 ## About
 
-The [@timagebot](https://timagebot.t.me) is a inline Telegram bot that generates
-a image with the provided text!
+The [@timagebot](https://timagebot.t.me) is a Telegram bot that generates a
+multi-frame GIF with the provided text!
 
 A custom syntax will be implemented later to allow to config color, font and
 text position.
@@ -20,15 +20,37 @@ This bot uploads the image in a custom group/channel and reuses the cached photo
 
 ## Usage
 
-Very simple, just call the bot in any chat
+> **Note**
+> The ending dot (`.`) in text content, it will be removed from image, but
+> it shows to bot that the message is finished. If you want to place a ending dot,
+> just put two dots in end.
+
+### Inline mode
+
+Call the bot in any chat:
 
 ```text
 @timagebot Hello World!.
 ```
 
-Note the ending dot (`.`) in text content, it will be removed from image, but
-it shows to bot that the message is finished. If you want to place a ending dot,
-just put two dots in end.
+Multi frame
+
+```text
+@timagebot Hello World||Bye World!.
+```
+
+Note that inline query can be just 256 characters limit, for larger text, send
+it to the bot privately.
+
+### Chatting with bot
+
+Just send the message to [@timagebot](https://timagebot.t.me).
+
+Example
+
+```
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia rem autem hic, vero ipsum maxime placeat similique facere molestias recusandae enim accusantium iure fuga harum ea ullam quod laboriosam excepturi.
+```
 
 ## TODO
 

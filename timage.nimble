@@ -1,8 +1,8 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.2.0"
 author        = "Thiago Navarro"
-description   = "Telegram inline text images generation, on the fly"
+description   = "Multi-frame text image generation in Telegram"
 license       = "GPL-3.0-only"
 srcDir        = "src"
 bin           = @["timage"]

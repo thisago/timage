@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.2.0 (2023/08/29)
+
+- Added frame max text len
+- Added multi frame gif generation with `||`
+- Added infinite poll loop to prevent crash when 429 is returned
+- Added dynamic font size
+- Removed fira code font
+
 ## Version 0.1.0 (2023/08/24)
 
 - Init
