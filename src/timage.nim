@@ -85,7 +85,7 @@ proc genImage(text, user: string) =
     t.genFrame i == 0
     inc i
 
-  discard execShellCmd fmt"convert -delay 200 -loop 0 {framesDir}/*.png {filename}; rm {framesDir}/*.png"
+  discard execShellCmd fmt"convert -delay 500 -loop 0 {framesDir}/*.png {filename}; rm {framesDir}/*.png"
 
 
 proc genAndUploadImg(b: Telebot; text, user: string; chatId = dbChatId): Future[string] {.async.} =
