@@ -1,7 +1,6 @@
 import std/asyncdispatch
 
-when not defined release:
-  import std/logging
+import std/logging
 
 from std/options import get, isSome
 from std/strutils import strip, split
