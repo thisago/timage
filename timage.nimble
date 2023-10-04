@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.2.0"
+version       = "0.3.0"
 author        = "Thiago Navarro"
 description   = "Multi-frame text image generation in Telegram"
 license       = "GPL-3.0-only"
@@ -15,6 +15,7 @@ requires "nim >= 1.6.4"
 
 requires "telebot"
 requires "pixie"
+requires "checksums"
 requires "dataUrl"
 
 

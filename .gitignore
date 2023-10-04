@@ -3,3 +3,6 @@ secret.key
 data
 chat.code
 text.gif
+out.gif
+error.log
+cached.json

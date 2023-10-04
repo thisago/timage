@@ -8,16 +8,22 @@ from std/strutils import strip, split
 from std/strformat import fmt
 from std/os import `/`, fileExists, existsOrCreateDir, execShellCmd, sleep
 from std/random import randomize, rand
-from std/times import now, format
+from std/times import now, format, DateTime, seconds, `<`, `+`
+from std/json import `$`, parseJson, to
+from std/tables import Table, `[]`, `[]=`, hasKey, del
+import std/jsonutils
 
+from pkg/checksums/md5 import `$`, toMD5
 import pkg/telebot
 import pkg/pixie
 
 import timage/config
 
-const apiSecretFile {.strdefine.} = "secret.key"
-const chatCodeFile {.strdefine.} = "chat.code"
-const framesDir = "frames"
+const
+  apiSecretFile {.strdefine.} = "secret.key"
+  chatCodeFile {.strdefine.} = "chat.code"
+  framesDir = "frames"
+  cacheJsonFile = "cached.json"
 
 when fileExists chatCodeFile:
   const staticChatCode = strip readFile chatCodeFile
@@ -74,14 +80,14 @@ proc genImage(text, user: string) =
 
     if first:
       image.fillText typeset(@[newSpan(user & "\l", tf.newFont(10, randomHsl(60))),], vec2(190, 190)), translate(vec2(5, 5))
-    image.fillText typeset(@[newSpan(text & "\l", tf.newFont(smallerFont(12, 26), color(1, 1, 1))),], vec2(190, 190), vAlign = MiddleAlign, hAlign = CenterAlign), translate(vec2(5, 5))
+    image.fillText typeset(@[newSpan(text & "\l", tf.newFont(smallerFont(12, 26), color(1, 1, 1))),], vec2(190, 190), vAlign = MiddleAlign, hAlign = CenterAlign)
     if first:
-      image.fillText typeset(@[newSpan(nowFormatted(), tf.newFont(10, color rgba(255, 255, 255, 60))),], vec2(200, 190), vAlign = BottomAlign, hAlign = RightAlign), translate(vec2(5, 10))
+      image.fillText typeset(@[newSpan(nowFormatted(), tf.newFont(10, color rgba(255, 255, 255, 60))),], vec2(200, 190), vAlign = BottomAlign, hAlign = RightAlign), translate(vec2(0, 10))
     image.writeFile framesDir / fmt"{frameNum}.png"
     inc frameNum
-  
+
   var i = 0
-  for t in text.split "||":
+  for t in text.split "::":
     t.genFrame i == 0
     inc i
 
@@ -100,27 +106,64 @@ proc genAndUploadImg(b: Telebot; text, user: string; chatId = dbChatId): Future[
 
   result = message.document.get.fileId
 
+var cache: Table[string, string] # md5 hash, fileid
+proc saveCache =
+  cacheJsonFile.writeFile $cache.toJson
+proc importCache =
+  try:
+    cache = cacheJsonFile.readFile.parseJson.to type cache
+  except IOError:
+    discard
+
+var lastSentMsg = now()
+proc waitNextSec =
+  while lastSentMsg + 1.seconds > now(): # rate limit
+    sleep 500
+  lastSentMsg = now()
+
+proc hash(user, text: string): string =
+  $toMD5 user & text
 
 proc inlineHandler(b: Telebot; q: InlineQuery): Future[bool] {.async, gcsafe.} =
   if q.fromUser.isBot: return
   if q.query.len == 0 or q.query[^1] != '.': return
-
   let
     text = q.query[0..^2]
     user = $q.fromUser
+    hash = user.hash text
+  debug fmt"Generating '{text}' for '{user}'"
   {.gcsafe.}:
-    discard waitFor b.answerInlineQuery(
-      q.id,
-      @[
-        InlineQueryResultCachedGif(
-          kind: "gif",
-          gifFileId: await b.genAndUploadImg(text, user),
-          id: "0"
-        )
-      ]
-    )
-  result = true
+    try:
+      var gifFileId: string
+      if cache.hasKey(hash):
+        if cache[hash].len > 0:
+          debug fmt"Using cached already generated '{text}' for '{user}'"
+          gifFileId = cache[hash]
+        else:
+          return
+      else:
+        cache[hash] = ""
+        waitNextSec()
+        gifFileId = await b.genAndUploadImg(text, user)
+        cache[hash] = gifFileId
 
+      waitNextSec()
+
+      discard waitFor b.answerInlineQuery(
+        q.id,
+        @[
+          InlineQueryResultCachedGif(
+            kind: "gif",
+            gifFileId: gifFileId,
+            id: "0"
+          )
+        ]
+      )
+      saveCache()
+      result = true
+    except:
+      error fmt"Error when generating '{text}' for '{user}': " & getCurrentExceptionMsg()
+      cache.del hash
 
 proc updateHandler(b: Telebot, q: Update): Future[bool] {.gcsafe, async.} =
   if q.message.isSome:
@@ -139,8 +182,8 @@ proc updateHandler(b: Telebot, q: Update): Future[bool] {.gcsafe, async.} =
 
 proc main(chatId = "") =
   when not defined release:
-    var L = newConsoleLogger(fmtStr = "$levelname, [$time] ")
-    addHandler(L)
+    addHandler newConsoleLogger(fmtStr = "$levelname, [$time] ")
+  addHandler newFileLogger("error.log", levelThreshold = lvlError)
 
   discard existsOrCreateDir framesDir
 
@@ -148,6 +191,8 @@ proc main(chatId = "") =
     quit fmt"Create '{chatCodeFile}' file or provide it in CLI"
   if chatId.len > 0:
     dbChatId = chatId
+
+  importCache()
 
   var bot: TeleBot
   while true:
@@ -157,10 +202,10 @@ proc main(chatId = "") =
       let bot = newTeleBot apiSecret
       bot.onInlineQuery inlineHandler
       bot.onUpdate updateHandler
-      bot.poll(timeout = 500)
+      bot.poll(timeout = 1000)
     except:
-      echo "crash"
-      sleep 1000
+      echo "crash: " & getCurrentExceptionMsg()
+      sleep 2000
 
 when isMainModule:
   import pkg/cligen

@@ -18,6 +18,10 @@ text position.
 
 This bot uploads the image in a custom group/channel and reuses the cached photo!
 
+Also, all generated and uploaded GIFs are cached, but you can only access the
+cached content if the same bot uploaded. Same cache for multiple instances is
+not possible.
+
 ## Usage
 
 > **Note**
@@ -36,7 +40,7 @@ Call the bot in any chat:
 Multi frame
 
 ```text
-@timagebot Hello World||Bye World!.
+@timagebot Hello World::Bye World!.
 ```
 
 Note that inline query can be just 256 characters limit, for larger text, send
@@ -51,6 +55,7 @@ Example
 ```
 Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia rem autem hic, vero ipsum maxime placeat similique facere molestias recusandae enim accusantium iure fuga harum ea ullam quod laboriosam excepturi.
 ```
+
 
 ## TODO
 
